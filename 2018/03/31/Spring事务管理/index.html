@@ -103,7 +103,7 @@
 <meta property="og:description" content="Spring事务管理在实际应用中常用到，本文先讲了一下事务基础，包括ACID，事务隔离级别；然后简单引申Spring中对事务的抽象描述，最后示例了Spring事务管理的两种方式-编程式事务管理和声明式事务管理。其实我在实际项目中也只用过声明式事务管理。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/03/31/Spring事务管理/TransactionDefinition.png">
-<meta property="og:updated_time" content="2018-04-06T06:31:48.209Z">
+<meta property="og:updated_time" content="2018-04-06T06:54:03.216Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring事务管理">
 <meta name="twitter:description" content="Spring事务管理在实际应用中常用到，本文先讲了一下事务基础，包括ACID，事务隔离级别；然后简单引申Spring中对事务的抽象描述，最后示例了Spring事务管理的两种方式-编程式事务管理和声明式事务管理。其实我在实际项目中也只用过声明式事务管理。">
@@ -561,7 +561,7 @@
 <h3 id="声明式事务管理"><a href="#声明式事务管理" class="headerlink" title="声明式事务管理"></a>声明式事务管理</h3><p>Spring 的声明式事务管理在底层是建立在 AOP 的基础之上的。其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。</p>
 <p>声明式事务最大的优点就是不需要通过编程的方式管理事务，这样就不需要在业务逻辑代码中掺杂事务管理的代码，只需在配置文件中做相关的事务规则声明（或通过等价的基于标注的方式），便可以将事务规则应用到业务逻辑中。</p>
 <p>声明式事务实现方式主要有2种，一种为通过使用Spring的&lt;tx:advice&gt;定义事务通知与AOP相关配置实现，另为一种通过@Transactional实现事务管理实现。</p>
-<p><strong>方式一：&lt;tx:advice&gt; + AOP，XML配置如下：</strong></p>
+<p><strong>方式一：&lt;tx:advice&gt; + AOP</strong>，XML配置如下：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--定义DataSource,TransactionManager，同编程式事务管理，这里就省略 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!--   </span></span><br><span class="line"><span class="comment">&lt;tx:advice&gt;定义事务通知，用于指定事务属性，其中“transaction-manager”属性指定事务管理器，并通过&lt;tx:attributes&gt;指定具体需要拦截的方法  </span></span><br><span class="line"><span class="comment">    &lt;tx:method&gt;拦截方法，其中参数有：  </span></span><br><span class="line"><span class="comment">    name:方法名称，将匹配的方法注入事务管理，可用通配符  </span></span><br><span class="line"><span class="comment">    propagation：事务传播行为，  </span></span><br><span class="line"><span class="comment">    isolation：事务隔离级别定义；默认为“DEFAULT”  </span></span><br><span class="line"><span class="comment">    timeout：事务超时时间设置，单位为秒，默认-1，表示事务超时将依赖于底层事务系统；  </span></span><br><span class="line"><span class="comment">    read-only：事务只读设置，默认为false，表示不是只读；  </span></span><br><span class="line"><span class="comment">    rollback-for：需要触发回滚的异常定义，可定义多个，以“，”分割，默认任何RuntimeException都将导致事务回滚，而任何Checked Exception将不导致事务回滚；  </span></span><br><span class="line"><span class="comment">    no-rollback-for：不被触发进行回滚的 Exception(s)；可定义多个，以“，”分割；  </span></span><br><span class="line"><span class="comment"> --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">tx:advice</span> <span class="attr">id</span>=<span class="string">"advice"</span> <span class="attr">transaction-manager</span>=<span class="string">"transactionManager"</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">tx:attributes</span>&gt;</span>  </span><br><span class="line">        <span class="comment">&lt;!-- 拦截save开头的方法，事务传播行为为：REQUIRED --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"save*"</span> <span class="attr">propagation</span>=<span class="string">"REQUIRED"</span> <span class="attr">isolation</span>=<span class="string">"READ_COMMITTED"</span> <span class="attr">timeout</span>=<span class="string">""</span> <span class="attr">read-only</span>=<span class="string">"false"</span> <span class="attr">no-rollback-for</span>=<span class="string">""</span> <span class="attr">rollback-for</span>=<span class="string">""</span>/&gt;</span>  </span><br><span class="line">        <span class="comment">&lt;!-- 支持,如果有就有,没有就没有 --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"*"</span> <span class="attr">propagation</span>=<span class="string">"SUPPORTS"</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">tx:attributes</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">tx:advice</span>&gt;</span>  </span><br><span class="line"><span class="comment">&lt;!--AOP配置--&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">aop:config</span>&gt;</span>  </span><br><span class="line">    <span class="comment">&lt;!-- 定义切入点，expression为切人点表达式，如下是指定impl包下的所有方法 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">expression</span>=<span class="string">"execution(* com.kaizhi.*.service.impl.*.*(..))"</span> <span class="attr">id</span>=<span class="string">"pointcut"</span>/&gt;</span>  </span><br><span class="line">    <span class="comment">&lt;!--advice定义 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:advisor</span> <span class="attr">advice-ref</span>=<span class="string">"advice"</span> <span class="attr">pointcut-ref</span>=<span class="string">"pointcut"</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p><strong>方式二：@Transactional注解</strong></p>
 <p>(1)开启事务注解<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--定义DataSource,TransactionManager，同编程式事务管理，这里就省略 --&gt;</span>      </span><br><span class="line"><span class="tag">&lt;<span class="name">tx:annotation-driven</span> <span class="attr">transaction-manager</span>=<span class="string">"transactionManager"</span>/&gt;</span><span class="comment">&lt;!--开启事务注解--&gt;</span></span><br></pre></td></tr></table></figure></p>
@@ -611,6 +611,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/07/Spring-IoC基础/" rel="prev" title="Spring IoC基础">
+                Spring IoC基础 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -687,7 +691,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -709,7 +713,7 @@
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-count">3</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
